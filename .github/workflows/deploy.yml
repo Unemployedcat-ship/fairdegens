@@ -7,7 +7,7 @@ jobs:
     uses: solana-foundation/github-workflows/.github/workflows/reusable-build.yaml@v0.5.0
     with:
       program: "fair_degens"
-      program-id: "YOUR_PROGRAM_ID_HERE"
+      program-id: "JDFbBErS5MaPRTJ1paGzod7AeDbfMNWLygi2Thdr64qY"
       network: "devnet"
       deploy: true
       upload_idl: true
