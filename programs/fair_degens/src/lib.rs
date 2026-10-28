@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, Mint, MintTo, Token, TokenAccount};
 
-declare_id!("47P9dLWqt9pUUJDo4um7Mvs1gu4oESvVK5nobnL8y39U"); 
+declare_id!("JDFbBErS5MaPRTJ1paGzod7AeDbfMNWLygi2Thdr64qY"); 
 
 pub const PLATFORM_FEE_WALLET: &str = "7kFmtJr5hEUB7fRr2b9bAVidt6XoQyJAcD188itUHmdu";
 pub const PLATFORM_FEE_PERCENT: u64 = 1;
