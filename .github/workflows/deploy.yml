@@ -1,20 +1,41 @@
 name: Devnet Build and Deploy
+
 on:
   workflow_dispatch:
 
 jobs:
-  build:
-    uses: solana-foundation/github-workflows/.github/workflows/reusable-build.yaml@v0.5.0
-    with:
-      program: "fair_degens"
-      program-id: "JDFbBErS5MaPRTJ1paGzod7AeDbfMNWLygi2Thdr64qY"
-      network: "devnet"
-      deploy: true
-      upload_idl: true
-      verify: false
-      use-squads: false
-      priority-fee: "300000"
-    secrets:
-      DEVNET_SOLANA_DEPLOY_URL: ${{ secrets.DEVNET_SOLANA_DEPLOY_URL }}
-      DEVNET_DEPLOYER_KEYPAIR: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
-      PROGRAM_ADDRESS_KEYPAIR: ${{ secrets.PROGRAM_ADDRESS_KEYPAIR }}
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install latest
+          avm use latest
+
+      - name: Build Program
+        run: anchor build
+
+      - name: Deploy to Devnet
+        env:
+          SOLANA_KEYPAIR: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
+          RPC_URL: ${{ secrets.DEVNET_SOLANA_DEPLOY_URL }}
+        run: |
+          echo "$SOLANA_KEYPAIR" > deployer.json
+          solana config set --url "$RPC_URL" --keypair deployer.json
+          solana program deploy target/deploy/fair_degens.so \
+            --program-id ${{ secrets.PROGRAM_ADDRESS_KEYPAIR }} \
+            --url "$RPC_URL"
