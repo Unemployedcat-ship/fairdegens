@@ -10,12 +10,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Anchor, Solana CLI, and Node.js
-        uses: metadaoproject/setup-anchor@v3.3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Anchor and Solana CLI
+        uses: metadaoproject/setup-anchor@v3.4
         with:
           solana-cli-version: '2.2.21'
           anchor-version: '0.31.1'
-          node-version: '20.11.0'
+          node-version: '20'
 
       - name: Build Program
         run: anchor build
@@ -25,13 +30,8 @@ jobs:
           SOLANA_KEYPAIR: ${{ secrets.DEVNET_DEPLOYER_KEYPAIR }}
           RPC_URL: ${{ secrets.DEVNET_SOLANA_DEPLOY_URL }}
         run: |
-          # Set up the deployer wallet from the secret
           echo "$SOLANA_KEYPAIR" > deployer.json
-          
-          # Configure the Solana CLI to use the wallet and Devnet
           solana config set --url "$RPC_URL" --keypair deployer.json
-          
-          # Deploy the program using the program ID stored in the secret
           solana program deploy target/deploy/fair_degens.so \
             --program-id ${{ secrets.PROGRAM_ADDRESS_KEYPAIR }} \
             --url "$RPC_URL"
