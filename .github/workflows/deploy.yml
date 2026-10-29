@@ -10,17 +10,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Setup Anchor and Solana CLI
         uses: metadaoproject/setup-anchor@v3.4
         with:
           solana-cli-version: '2.2.21'
           anchor-version: '0.31.1'
           node-version: '20'
+
+      - name: Add Anchor and Solana to PATH
+        run: |
+          echo "$HOME/.avm/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Verify Installations
+        run: |
+          anchor --version
+          solana --version
 
       - name: Build Program
         run: anchor build
