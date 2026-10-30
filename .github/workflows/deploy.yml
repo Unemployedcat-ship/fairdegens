@@ -5,27 +5,28 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Anchor and Solana CLI
-        uses: metadaoproject/setup-anchor@v3.4
-        with:
-          solana-cli-version: '2.2.21'
-          anchor-version: '0.31.1'
-          node-version: '20'
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Add Anchor and Solana to PATH
+      - name: Install Solana CLI (v2.1.21)
         run: |
-          echo "$HOME/.avm/bin" >> $GITHUB_PATH
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.21/install)"
+          echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor from source
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor \
+            --tag v0.31.1 anchor-cli --locked
 
       - name: Verify Installations
         run: |
-          anchor --version
           solana --version
+          anchor --version
 
       - name: Build Program
         run: anchor build
